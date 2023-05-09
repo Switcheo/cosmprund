@@ -593,14 +593,14 @@ func pruneAppState(home string) error {
 			keys[key] = value
 		}
 	} else if app == "desmos" {
-	    // https://github.com/desmos-labs/desmos/blob/master/app/app.go#L388
+		// https://github.com/desmos-labs/desmos/blob/master/app/app.go#L388
 		desmosKeys := types.NewKVStoreKeys(
 			// common modules
 			"feegrant", // feegrant.StoreKey,
 			"wasm",     // wasm.StoreKey,
 			"authz",    // authzkeeper.StoreKey,
 			// mainnet since v4.7.0
-			"profiles", // profilestypes.StoreKey,
+			"profiles",      // profilestypes.StoreKey,
 			"relationships", // relationshipstypes.StoreKey,
 			"subspaces",     // subspacestypes.StoreKey,
 			"posts",         // poststypes.StoreKey,
@@ -610,6 +610,54 @@ func pruneAppState(home string) error {
 		)
 
 		for key, value := range desmosKeys {
+			keys[key] = value
+		}
+	} else if app == "carbon" {
+		// https://github.com/Switcheo/carbon/blob/master/app/app.go#L496
+		carbonKeys := types.NewKVStoreKeys(
+			// cosmos-sdk
+			"feegrant",    // feegrant.StoreKey,
+			"cosmosauthz", // // https://github.com/Switcheo/carbon/blob/master/Makefile#L21
+			"nft",         // nftkeeper.StoreKey,
+			"group",       // group.StoreKey,
+			// ibc-go
+			"feeibc",        // ibcfeetypes.StoreKey,
+			"icacontroller", // icacontrollertypes.StoreKey,
+			"icahosttypes",  // icahosttypes.StoreKey,
+			// alliance
+			"alliance", // alliancemoduletypes.StoreKey,
+			// polynetwork-cosmos
+			"ccm",        // ccmtypes.StoreKey,
+			"headersync", // headersynctypes.StoreKey,
+			"lockproxy",  // lockproxytypes.StoreKey,
+			// carbon
+			"adl",           // adltypes.StoreKey,
+			"evm",           // evmtypes.StoreKey,
+			"xevmbank",      // evmbanktypes.StoreKey,
+			"xevmmerge",     // evmmergetypes.StoreKey,
+			"feemarket",     // feemarkettypes.StoreKey,
+			"liquiditypool", // liquiditypooltypes.StoreKey,
+			"insurance",     // insurancetypes.StoreKey,
+			"cdp",           // cdptypes.StoreKey,
+			"liquidation",   // liquidationtypes.StoreKey,
+			"carbonfee",     // feetypes.StoreKey,
+			"inflation",     // inflationtypes.StoreKey,
+			"broker",        // brokertypes.StoreKey,
+			"profile",       // profiletypes.StoreKey,
+			"leverage",      // leveragetypes.StoreKey,
+			"position",      // positiontypes.StoreKey,
+			"order",         // ordertypes.StoreKey,
+			"book",          // booktypes.StoreKey,
+			"pricing",       // pricingtypes.StoreKey,
+			"subaccount",    // subaccounttypes.StoreKey,
+			"oracle",        // oracletypes.StoreKey,
+			"market",        // markettypes.StoreKey,
+			"coin",          // cointypes.StoreKey,
+			"statsmarket",   // marketstatstypes.StoreKey,
+			"sequence",      // sequencetypes.StoreKey,
+		)
+
+		for key, value := range carbonKeys {
 			keys[key] = value
 		}
 	}
