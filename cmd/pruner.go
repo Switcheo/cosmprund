@@ -102,6 +102,7 @@ func compactCmd() *cobra.Command {
 	return cmd
 }
 
+// compactAppState compacts the application db
 func compactAppState(home string) error {
 	dbDir := rootify(dataDir, home)
 
@@ -121,7 +122,7 @@ func compactAppState(home string) error {
 	return nil
 }
 
-// compactTMData prunes the tendermint blocks and state based on the amount of blocks to keep
+// compactTMData compacts the tm state store
 func compactTMData(home string) error {
 	dbDir := rootify(dataDir, home)
 
@@ -129,20 +130,9 @@ func compactTMData(home string) error {
 		DisableSeeksCompaction: true,
 	}
 
-	// Get BlockStore
-	blockStoreDB, err := db.NewGoLevelDBWithOpts("blockstore", dbDir, &o)
-	if err != nil {
-		return err
-	}
-
 	// Get StateStore
 	stateDB, err := db.NewGoLevelDBWithOpts("state", dbDir, &o)
 	if err != nil {
-		return err
-	}
-
-	fmt.Println("compacting block store")
-	if err := blockStoreDB.ForceCompact(nil, nil); err != nil {
 		return err
 	}
 
