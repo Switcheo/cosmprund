@@ -68,6 +68,92 @@ func pruneCmd() *cobra.Command {
 	return cmd
 }
 
+func compactCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "compact [path_to_home]",
+		Short: "compact data from the application store and tm store",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+
+			ctx := cmd.Context()
+			errs, _ := errgroup.WithContext(ctx)
+			var err error
+			if tendermint {
+				errs.Go(func() error {
+					if err = compactTMData(args[0]); err != nil {
+						return err
+					}
+					return nil
+				})
+			}
+
+			if cosmosSdk {
+				err = compactAppState(args[0])
+				if err != nil {
+					return err
+				}
+				return nil
+
+			}
+
+			return errs.Wait()
+		},
+	}
+	return cmd
+}
+
+func compactAppState(home string) error {
+	dbDir := rootify(dataDir, home)
+
+	o := opt.Options{
+		DisableSeeksCompaction: true,
+	}
+
+	// Get app store
+	appDB, err := db.NewGoLevelDBWithOpts("application", dbDir, &o)
+	if err != nil {
+		return err
+	}
+	fmt.Println("compacting application state")
+	if err := appDB.ForceCompact(nil, nil); err != nil {
+		return err
+	}
+	return nil
+}
+
+// compactTMData prunes the tendermint blocks and state based on the amount of blocks to keep
+func compactTMData(home string) error {
+	dbDir := rootify(dataDir, home)
+
+	o := opt.Options{
+		DisableSeeksCompaction: true,
+	}
+
+	// Get BlockStore
+	blockStoreDB, err := db.NewGoLevelDBWithOpts("blockstore", dbDir, &o)
+	if err != nil {
+		return err
+	}
+
+	// Get StateStore
+	stateDB, err := db.NewGoLevelDBWithOpts("state", dbDir, &o)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("compacting block store")
+	if err := blockStoreDB.ForceCompact(nil, nil); err != nil {
+		return err
+	}
+
+	fmt.Println("compacting state store")
+	if err := stateDB.ForceCompact(nil, nil); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func pruneAppState(home string) error {
 
 	// this has the potential to expand size, should just use state sync
